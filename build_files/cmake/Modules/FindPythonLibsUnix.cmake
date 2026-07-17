@@ -76,8 +76,24 @@ string(REPLACE "." "" PYTHON_VERSION_NO_DOTS ${PYTHON_VERSION})
 
 set(_PYTHON_ABI_FLAGS "")
 
+set(_PYTHON_CONFIG_PREFIX "")
+if(NOT PYTHON_ROOT_DIR)
+  find_program(_PYTHON_CONFIG
+    NAMES
+      "python${PYTHON_VERSION}-config"
+  )
+  if(_PYTHON_CONFIG)
+    execute_process(
+      COMMAND ${_PYTHON_CONFIG} --prefix
+      OUTPUT_VARIABLE _PYTHON_CONFIG_PREFIX
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET)
+  endif()
+endif()
+
 set(_python_SEARCH_DIRS
   ${PYTHON_ROOT_DIR}
+  ${_PYTHON_CONFIG_PREFIX}
   "$ENV{HOME}/py${PYTHON_VERSION_NO_DOTS}"
   "/opt/lib/python-${PYTHON_VERSION}"
 )
@@ -176,6 +192,9 @@ if((NOT _IS_INC_DEF) OR (NOT _IS_INC_CONF_DEF) OR (NOT _IS_LIB_DEF) OR (NOT _IS_
 
   unset(_PYTHON_ABI_FLAGS_TEST)
 endif()
+
+unset(_PYTHON_CONFIG)
+unset(_PYTHON_CONFIG_PREFIX)
 
 unset(_IS_INC_DEF)
 unset(_IS_INC_CONF_DEF)
